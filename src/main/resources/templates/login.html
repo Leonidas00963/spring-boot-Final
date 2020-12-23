@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="de" xmlns:th="http://www.thymeleaf.org">
 <head>
-	<title th:text="${titel}"></title>
+	<title th:text="${titel}"> Admin Bereich </title>
 	<link th:replace="fragments/styles"/>
 </head>
 <body>
@@ -31,6 +31,10 @@
 							<input th:type="${login.registerMode?'text':'password'}" class="mdl-textfield__input" th:field="*{password}"/>
 							<label class="mdl-textfield__label" for="password" th:text="#{label.password}"/>
 							<span class="mdl-textfield__error" th:errors="*{password}"/>
+						</div>
+
+						<div class="mdl-card__media">
+							<img class="article-image" src="/images/title.jpg" border="0" alt="">
 						</div>
 						<div th:if="${login.registerMode}"
 					     class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label twoFields"

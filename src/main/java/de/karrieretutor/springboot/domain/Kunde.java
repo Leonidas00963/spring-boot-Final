@@ -3,11 +3,13 @@ package de.karrieretutor.springboot.domain;
 import de.karrieretutor.springboot.Const;
 import de.karrieretutor.springboot.enums.Zahlungsart;
 import org.springframework.validation.BindingResult;
+import org.thymeleaf.util.StringUtils;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -155,20 +157,92 @@ public class Kunde {
     }
 
 
-    // TODO: implementieren
     @Transient
     public boolean validiereZahlungsart(BindingResult result) {
-        return false;
+        // Überprüfe ob Zahlungsart ausgewählt
+        if (this.getZahlungsart().toString().isEmpty()) {
+            result.rejectValue("zahlungsart", "validation.zahlungsart.zahlungsart");
+            return false;
+        }
+
+        switch (this.getZahlungsart()) {
+            case EINZUG:
+                if (StringUtils.isEmptyOrWhitespace(this.getIban())) {
+                    result.rejectValue("iban", "validation.zahlungsart.iban");
+                    return false;
+                }
+
+                if (!this.validiereIBAN(this.getIban())) {
+                    result.rejectValue("iban", "validation.zahlungsart.iban");
+                    return false;
+                }
+                break;
+
+            case KREDITKARTE:
+                if (StringUtils.isEmptyOrWhitespace(this.getKreditkartenNr())) {
+                    result.rejectValue("kreditkartenNr", "validation.zahlungsart.karte");
+                    return false;
+                }
+
+                if (!this.validiereKreditkartenNr(this.getKreditkartenNr())) {
+                    result.rejectValue("kreditkartenNr", "validation.zahlungsart.karte");
+                    return false;
+                }
+                break;
+
+            case PAYPAL:
+                break;
+        }
+
+        return true;
     }
 
-    // TODO: implementieren
-    private boolean validiereIBAN() {
-        return false;
+    private boolean validiereIBAN(String accountNumber) {
+
+        final int IBANNUMBER_MIN_SIZE = 15;
+        final int IBANNUMBER_MAX_SIZE = 34;
+        final BigInteger IBANNUMBER_MAGIC_NUMBER = new BigInteger("97");
+
+        String newAccountNumber = accountNumber.trim();
+
+        // Check that the total IBAN length is correct as per the country. If not, the IBAN is invalid.
+        if (newAccountNumber.length() < IBANNUMBER_MIN_SIZE || newAccountNumber.length() > IBANNUMBER_MAX_SIZE) {
+            return false;
+        }
+
+        // Move the four initial characters to the end of the string.
+        newAccountNumber = newAccountNumber.substring(4) + newAccountNumber.substring(0, 4);
+
+        // Replace each letter in the string with two digits, thereby expanding the string, where A = 10, B = 11, ..., Z = 35.
+        StringBuilder numericAccountNumber = new StringBuilder();
+        for (int i = 0;i < newAccountNumber.length();i++) {
+            numericAccountNumber.append(Character.getNumericValue(newAccountNumber.charAt(i)));
+        }
+
+        // Interpret the string as a decimal integer and compute the remainder of that number on division by 97.
+        BigInteger ibanNumber = new BigInteger(numericAccountNumber.toString());
+        return ibanNumber.mod(IBANNUMBER_MAGIC_NUMBER).intValue() == 1;
     }
 
-    // TODO: implementieren
-    private boolean validiereKreditkartenNr() {
-        return false;
+    private boolean validiereKreditkartenNr(String creditcardNumber) {
+
+        int[] ints = new int[creditcardNumber.length()];
+        for (int i = 0; i < creditcardNumber.length(); i++) {
+            ints[i] = Integer.parseInt(creditcardNumber.substring(i, i + 1));
+        }
+        for (int i = ints.length - 2; i >= 0; i = i - 2) {
+            int j = ints[i];
+            j = j * 2;
+            if (j > 9) {
+                j = j % 10 + 1;
+            }
+            ints[i] = j;
+        }
+        int sum = 0;
+        for (int i = 0; i < ints.length; i++) {
+            sum += ints[i];
+        }
+        return (sum % 10 == 0);
     }
 
     @Override
