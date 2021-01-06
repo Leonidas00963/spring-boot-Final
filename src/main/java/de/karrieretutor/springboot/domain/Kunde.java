@@ -3,19 +3,20 @@ package de.karrieretutor.springboot.domain;
 import de.karrieretutor.springboot.Const;
 import de.karrieretutor.springboot.enums.Zahlungsart;
 import org.springframework.validation.BindingResult;
-import org.thymeleaf.util.StringUtils;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 import static de.karrieretutor.springboot.Const.CUSTOMER;
 import static javax.persistence.CascadeType.ALL;
+
+import java.math.BigInteger;
+import org.thymeleaf.util.StringUtils;
 
 
 @Entity
@@ -155,7 +156,6 @@ public class Kunde {
     public void setBestellungen(List<Bestellung> bestellungen) {
         this.bestellungen = bestellungen;
     }
-
 
     @Transient
     public boolean validiereZahlungsart(BindingResult result) {
