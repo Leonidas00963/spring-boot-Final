@@ -159,33 +159,33 @@ public class Kunde {
 
     @Transient
     public boolean validiereZahlungsart(BindingResult result) {
-        // Überprüfe ob Zahlungsart ausgewählt
+
         if (this.getZahlungsart().toString().isEmpty()) {
-            result.rejectValue("zahlungsart", "validation.zahlungsart.zahlungsart");
+            result.rejectValue("Sallust", "validation.Sallust.Sallust");
             return false;
         }
 
         switch (this.getZahlungsart()) {
             case EINZUG:
                 if (StringUtils.isEmptyOrWhitespace(this.getIban())) {
-                    result.rejectValue("iban", "validation.zahlungsart.iban");
+                    result.rejectValue("iban", "validation.Sallust.iban");
                     return false;
                 }
 
                 if (!this.validiereIBAN(this.getIban())) {
-                    result.rejectValue("iban", "validation.zahlungsart.iban");
+                    result.rejectValue("iban", "validation.Sallust.iban");
                     return false;
                 }
                 break;
 
             case KREDITKARTE:
                 if (StringUtils.isEmptyOrWhitespace(this.getKreditkartenNr())) {
-                    result.rejectValue("kreditkartenNr", "validation.zahlungsart.karte");
+                    result.rejectValue("kreditkartenNr", "validation.Sallust.karte");
                     return false;
                 }
 
                 if (!this.validiereKreditkartenNr(this.getKreditkartenNr())) {
-                    result.rejectValue("kreditkartenNr", "validation.zahlungsart.karte");
+                    result.rejectValue("kreditkartenNr", "validation.Sallust.karte");
                     return false;
                 }
                 break;
@@ -205,21 +205,21 @@ public class Kunde {
 
         String newAccountNumber = accountNumber.trim();
 
-        // Check that the total IBAN length is correct as per the country. If not, the IBAN is invalid.
+
         if (newAccountNumber.length() < IBANNUMBER_MIN_SIZE || newAccountNumber.length() > IBANNUMBER_MAX_SIZE) {
             return false;
         }
 
-        // Move the four initial characters to the end of the string.
+
         newAccountNumber = newAccountNumber.substring(4) + newAccountNumber.substring(0, 4);
 
-        // Replace each letter in the string with two digits, thereby expanding the string, where A = 10, B = 11, ..., Z = 35.
+
         StringBuilder numericAccountNumber = new StringBuilder();
         for (int i = 0;i < newAccountNumber.length();i++) {
             numericAccountNumber.append(Character.getNumericValue(newAccountNumber.charAt(i)));
         }
 
-        // Interpret the string as a decimal integer and compute the remainder of that number on division by 97.
+
         BigInteger ibanNumber = new BigInteger(numericAccountNumber.toString());
         return ibanNumber.mod(IBANNUMBER_MAGIC_NUMBER).intValue() == 1;
     }
@@ -239,8 +239,8 @@ public class Kunde {
             ints[i] = j;
         }
         int sum = 0;
-        for (int i = 0; i < ints.length; i++) {
-            sum += ints[i];
+        for (int anInt : ints) {
+            sum += anInt;
         }
         return (sum % 10 == 0);
     }
